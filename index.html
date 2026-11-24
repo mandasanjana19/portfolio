@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manda Sanjana // Portfolio</title>
+<meta name="description" content="Manda Sanjana. I build AI that acts. ML, LLM agents and big data.">
+<style>
+:root{--bg:#030b1f;--blue:#2f8bff;--cyan:#5be1ff;--soft:#9db8e8;--line:rgba(91,225,255,.22)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(1200px 700px at 70% -10%,#0f2f6e 0%,var(--bg) 60%) fixed;color:#e8f3ff;font-family:ui-monospace,"JetBrains Mono","Fira Code",Consolas,monospace;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+canvas#rain{position:fixed;inset:0;z-index:-1;opacity:.35}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));z-index:50;box-shadow:0 0 12px var(--cyan)}
+#glow{position:fixed;width:340px;height:340px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(47,139,255,.22),transparent 65%);transform:translate(-50%,-50%);left:50%;top:50%}
+.hud{position:fixed;z-index:40;font-size:.7rem;color:var(--soft);letter-spacing:.12em}
+.hud.tl{top:16px;left:20px}.hud.tr{top:16px;right:20px}.hud.bl{bottom:16px;left:20px}
+section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:90px 7vw;position:relative;z-index:1}
+.big{font-size:clamp(2.4rem,9vw,7.5rem);font-weight:800;line-height:1;letter-spacing:-.03em}
+.big em{font-style:normal;background:linear-gradient(90deg,var(--blue),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--soft);margin-top:22px;max-width:520px;font-size:1rem}
+.prompt{color:var(--cyan);font-size:.9rem;margin-bottom:18px;min-height:1.4em}
+.prompt::after{content:"▋";animation:blink 1s steps(1) infinite;margin-left:4px}
+@keyframes blink{50%{opacity:0}}
+.hint{position:absolute;bottom:28px;left:7vw;color:var(--soft);font-size:.8rem;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(8px)}}
+/* reveal */
+.rv{opacity:0;transform:translateY(46px);filter:blur(6px);transition:all .9s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none;filter:none}
+.rv.d1{transition-delay:.12s}.rv.d2{transition-delay:.24s}.rv.d3{transition-delay:.36s}
+/* project scenes */
+.proj{border-top:1px solid var(--line)}
+.num{position:absolute;right:5vw;top:50%;transform:translateY(-50%);font-size:clamp(9rem,28vw,24rem);font-weight:900;color:transparent;-webkit-text-stroke:1px rgba(91,225,255,.22);line-height:1;z-index:-1;user-select:none}
+.kind{color:var(--cyan);font-size:.8rem;letter-spacing:.2em;margin-bottom:14px}
+.proj h2{font-size:clamp(2rem,6.5vw,5rem);line-height:1.05;letter-spacing:-.02em;max-width:900px}
+.proj p{color:var(--soft);margin-top:20px;max-width:680px;font-size:1.05rem;line-height:1.7}
+.proj p b{color:var(--cyan);font-weight:700}
+.tags{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.tags i{font-style:normal;font-size:1.05rem;padding:6px 14px;border:1px solid var(--line);border-radius:4px;color:var(--cyan);background:rgba(47,139,255,.08)}
+.go{display:inline-block;margin-top:28px;padding:12px 22px;border:1px solid var(--cyan);color:var(--cyan);border-radius:4px;transition:.25s;font-size:.9rem}
+.go:hover{background:var(--cyan);color:#021;box-shadow:0 0 24px var(--cyan)}
+.go.off{border-color:var(--line);color:var(--soft);pointer-events:none}
+/* marquee */
+.marq{overflow:hidden;border-block:1px solid var(--line);padding:22px 0;margin-top:34px;white-space:nowrap}
+.marq div{display:inline-block;animation:slide 28s linear infinite}
+.marq:hover div{animation-play-state:paused}
+.marq a{font-size:clamp(1.4rem,4vw,2.6rem);font-weight:700;color:transparent;-webkit-text-stroke:1px var(--cyan);transition:.2s}
+.marq a:hover{color:var(--cyan)}
+.marq a::after{content:"•";display:inline-block;margin:0 2.2rem;color:var(--cyan);-webkit-text-stroke:0}
+@keyframes slide{to{transform:translateX(-50%)}}
+/* contact */
+.mail{display:inline-block;font-size:clamp(1.1rem,4.2vw,3rem);font-weight:800;border-bottom:2px solid var(--cyan);padding-bottom:6px;margin-top:30px;word-break:break-all}
+.mailbtns{display:flex;gap:14px;flex-wrap:wrap;margin-top:26px}
+.mailbtns .go{margin-top:0}
+.links{display:flex;gap:26px;margin-top:32px;flex-wrap:wrap}
+.links a{color:var(--soft);border-bottom:1px solid var(--line)}
+.links a:hover{color:var(--cyan)}
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--blue);color:#fff;padding:10px 20px;border-radius:6px;transition:.35s;z-index:60;font-size:.85rem}
+#toast.show{transform:translateX(-50%)}
+@media (prefers-reduced-motion:reduce){.rv{transition:none;opacity:1;transform:none;filter:none}.marq div,.hint,.prompt::after{animation:none}canvas#rain{display:none}}
+</style>
+</head>
+<body>
+<canvas id="rain"></canvas>
+<div id="bar"></div>
+<div id="glow"></div>
+<div class="hud tl">MANDA SANJANA / PORTFOLIO</div>
+<div class="hud tr" id="pct">00%</div>
+
+<!-- HERO -->
+<section>
+  <div class="prompt" id="boot"></div>
+  <h1 class="big"><span class="scr" data-text="MANDA">MANDA</span><br><em class="scr" data-text="SANJANA">SANJANA</em></h1>
+  <p class="sub">CS undergrad. I build AI that acts.</p>
+  <div class="hint">↓ scroll</div>
+</section>
+
+<!-- STATEMENT -->
+<section>
+  <h2 class="big rv"><span class="scr" data-text="MODELS.">MODELS.</span><br><span class="scr" data-text="AGENTS.">AGENTS.</span><br><em class="scr" data-text="PIPELINES.">PIPELINES.</em></h2>
+  <p class="sub rv d2">Four things I'm proud of ↓</p>
+</section>
+
+<!-- PROJECTS -->
+<section class="proj">
+  <div class="num">01</div>
+  <div class="kind rv">LLM · AGENT</div>
+  <h2 class="rv d1"><span class="scr" data-text="AI Support Agent">AI Support Agent</span></h2>
+  <p class="rv d2">Retrieves answers from historical Apple Support conversations using Groq with TF-IDF and cosine similarity. Reached <b>66.67%</b> intent accuracy against baselines, with automatic escalation of sensitive issues.</p>
+  <div class="tags rv d2"><i>Groq</i><i>TF-IDF</i><i>Python</i></div>
+  <a class="go rv d3" href="https://github.com/mandasanjana19/support-agent" target="_blank" rel="noopener">Know More →</a>
+</section>
+
+<section class="proj">
+  <div class="num">02</div>
+  <div class="kind rv">ACCENTURE INTERNSHIP</div>
+  <h2 class="rv d1"><span class="scr" data-text="Talk to your budget.">Talk to your budget.</span></h2>
+  <p class="rv d2">Lets finance users query and update Oracle planning forms in plain English, using Cohere Command R+ and the EPM REST APIs. Includes a chat-driven dashboard with <b>4 chart types</b>.</p>
+  <div class="tags rv d2"><i>Oracle APEX</i><i>PL/SQL</i><i>Cohere</i><i>REST</i></div>
+  <span class="go off rv d3">Built at Accenture</span>
+</section>
+
+<section class="proj">
+  <div class="num">03</div>
+  <div class="kind rv">MACHINE LEARNING</div>
+  <h2 class="rv d1"><span class="scr" data-text="Rural Credit Scoring">Rural Credit Scoring</span></h2>
+  <p class="rv d2">Predicts loan repayment for smallholder farmers with XGBoost, reaching <b>0.89 ROC-AUC</b>. SHAP explanations make every lending decision transparent and fair.</p>
+  <div class="tags rv d2"><i>XGBoost</i><i>SHAP</i><i>Streamlit</i></div>
+  <a class="go rv d3" href="https://github.com/mandasanjana19/DIGITAL-CREDIT-SCORING" target="_blank" rel="noopener">Know More →</a>
+</section>
+
+<section class="proj">
+  <div class="num">04</div>
+  <div class="kind rv">BIG DATA</div>
+  <h2 class="rv d1"><span class="scr" data-text="CloudLog Intelligence">CloudLog Intelligence</span></h2>
+  <p class="rv d2">Processes <b>575K+</b> HDFS block records with PySpark and streams events through Kafka in 10-second and 1-minute windows. XGBoost, Isolation Forest and rules flag anomalies and group them into incidents.</p>
+  <div class="tags rv d2"><i>Kafka</i><i>Spark</i><i>Hadoop</i><i>XGBoost</i></div>
+  <a class="go rv d3" href="https://github.com/mandasanjana19/cloudlogs-project" target="_blank" rel="noopener">Know More →</a>
+</section>
+
+<!-- MORE -->
+<section style="min-height:70vh">
+  <div class="kind rv">ALSO BUILT</div>
+  <div class="marq rv d1">
+    <div>
+      <a href="https://github.com/mandasanjana19/coding-assessment-platform" target="_blank" rel="noopener">Coding Assessment Platform</a>
+      <a href="https://github.com/mandasanjana19/ecofashion_retailer" target="_blank" rel="noopener">EcoFashion Retailer</a>
+      <a href="https://github.com/mandasanjana19/grocery_store_management_system_oops" target="_blank" rel="noopener">Grocery Store System</a>
+      <a href="https://github.com/mandasanjana19?tab=repositories" target="_blank" rel="noopener">All repos</a>
+      <a href="https://github.com/mandasanjana19/coding-assessment-platform" target="_blank" rel="noopener">Coding Assessment Platform</a>
+      <a href="https://github.com/mandasanjana19/ecofashion_retailer" target="_blank" rel="noopener">EcoFashion Retailer</a>
+      <a href="https://github.com/mandasanjana19/grocery_store_management_system_oops" target="_blank" rel="noopener">Grocery Store System</a>
+      <a href="https://github.com/mandasanjana19?tab=repositories" target="_blank" rel="noopener">All repos</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section>
+  <h2 class="big rv"><span class="scr" data-text="LET'S">LET'S</span> <em class="scr" data-text="TALK.">TALK.</em></h2>
+  <p class="sub rv d1">Open to internships and full-time roles. Let's turn bold ideas into real products.</p>
+  <div class="mail rv d1">sanjanakiran19@gmail.com</div>
+  <div class="mailbtns rv d2">
+    <a class="go" href="https://mail.google.com/mail/?view=cm&fs=1&to=sanjanakiran19@gmail.com&su=Hello%20Sanjana" target="_blank" rel="noopener">Open in Gmail →</a>
+    <a class="go" href="https://www.linkedin.com/in/manda-sanjana-2ba158299/" target="_blank" rel="noopener">LinkedIn →</a>
+    <a class="go" href="https://github.com/mandasanjana19" target="_blank" rel="noopener">GitHub →</a>
+    <a class="go" href="https://leetcode.com/u/1ZA5fLvVUq/" target="_blank" rel="noopener">LeetCode →</a>
+  </div>
+</section>
+
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // scroll progress
+  var bar = document.getElementById('bar'), pct = document.getElementById('pct');
+  function prog(){
+    var h = document.documentElement.scrollHeight - innerHeight;
+    var p = h > 0 ? scrollY / h : 0;
+    bar.style.width = (p*100) + '%';
+    pct.textContent = String(Math.round(p*100)).padStart(2,'0') + '%';
+  }
+  addEventListener('scroll', prog, {passive:true}); prog();
+
+  // cursor glow
+  var glow = document.getElementById('glow');
+  addEventListener('pointermove', function(e){ glow.style.left = e.clientX+'px'; glow.style.top = e.clientY+'px'; });
+
+  // decode / scramble text
+  var chars = '!<>-_\\/[]{}=+*^?#01';
+  function scramble(el){
+    var final = el.dataset.text; if (reduce) { el.textContent = final; return; }
+    var frame = 0, total = 28;
+    var t = setInterval(function(){
+      var out = '';
+      for (var i = 0; i < final.length; i++){
+        if (final[i] === ' ') { out += ' '; continue; }
+        out += (i < (frame/total) * final.length) ? final[i] : chars[Math.floor(Math.random()*chars.length)];
+      }
+      el.textContent = out;
+      if (++frame > total) { clearInterval(t); el.textContent = final; }
+    }, 32);
+  }
+
+  // reveal on scroll
+  var scrDone = new WeakSet();
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (!en.isIntersecting) return;
+      en.target.classList.add('in');
+      en.target.querySelectorAll && en.target.querySelectorAll('.scr').forEach(function(s){ if(!scrDone.has(s)){ scrDone.add(s); scramble(s); } });
+      if (en.target.classList.contains('scr') && !scrDone.has(en.target)) { scrDone.add(en.target); scramble(en.target); }
+      io.unobserve(en.target);
+    });
+  }, {threshold:.25});
+  document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+  document.querySelectorAll('.scr').forEach(function(el){ if (!el.closest('.rv')) io.observe(el); });
+
+  // typed boot line
+  var boot = document.getElementById('boot'), msg = '> initializing portfolio... access granted', i = 0;
+  function type(){ if (i <= msg.length){ boot.textContent = msg.slice(0, i++); setTimeout(type, reduce ? 0 : 38); } }
+  type();
+
+  // parallax big numbers
+  var nums = document.querySelectorAll('.num');
+  if (!reduce) addEventListener('scroll', function(){
+    nums.forEach(function(n){
+      var r = n.parentElement.getBoundingClientRect();
+      n.style.transform = 'translateY(calc(-50% + ' + (r.top * -0.18) + 'px))';
+    });
+  }, {passive:true});
+
+  // blue matrix rain
+  var c = document.getElementById('rain'), x = c.getContext('2d'), cols, drops;
+  function size(){ c.width = innerWidth; c.height = innerHeight; cols = Math.floor(c.width/18); drops = Array(cols).fill(0).map(function(){ return Math.random()*c.height/18; }); }
+  size(); addEventListener('resize', size);
+  if (!reduce) setInterval(function(){
+    x.fillStyle = 'rgba(3,11,31,.1)'; x.fillRect(0,0,c.width,c.height);
+    x.fillStyle = '#2f8bff'; x.font = '15px monospace';
+    for (var k = 0; k < cols; k++){
+      x.fillText(Math.random() > .5 ? '1' : '0', k*18, drops[k]*18);
+      if (drops[k]*18 > c.height && Math.random() > .975) drops[k] = 0;
+      drops[k]++;
+    }
+  }, 60);
+})();
+</script>
+</body>
+</html>
